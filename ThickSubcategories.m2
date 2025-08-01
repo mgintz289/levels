@@ -74,7 +74,7 @@ rightApproximation(Complex,Complex) := ComplexMap => opts -> (G,X) -> (
     H := Hom(G,X);
     -- FIXME: We only need H in degrees [-1,1], currently Hom does not allow for this
     
-    K := trim ker H.dd_0;
+    K := ker H.dd_0;
     L := HH_0 H;
     
     if (opts.Strategy == "Inductive") then (
@@ -82,7 +82,7 @@ rightApproximation(Complex,Complex) := ComplexMap => opts -> (G,X) -> (
         
         -- TODO for homogeneous
         while (M := coker HH_0 Hom(G,f)) != 0 do ( 
-            Mtrim := trim M;
+            Mtrim := M;
             Q := cover Mtrim;
             -- R^1 -> Q -> Mtrim
             u := map(Mtrim,Q,id_Q)*Q_{0};
@@ -96,7 +96,7 @@ rightApproximation(Complex,Complex) := ComplexMap => opts -> (G,X) -> (
     );
     
     -- Collect the generators of H_0(H), they are maps G -> X
-    L = trim L;
+    --  L = trim L;
     local h;
     local Q;
     if opts.HomogeneousMaps then (
@@ -1682,8 +1682,8 @@ doc ///
     Headline
         choose the strategy used to compute level
     Usage
-        level(..., LengthLimitGenerator => "ghost")
-        level(..., LengthLimitGenerator => "coghost")
+        level(..., Strategy => "ghost")
+        level(..., Strategy => "coghost")
     Description
         Text
             The default value is "ghost".
