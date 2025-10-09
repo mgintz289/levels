@@ -1262,7 +1262,7 @@ nonProxySmall(Ring) := Module => R -> (
 
 -----------------------------------------------------------
 -----------------------------------------------------------
--- Avramov's obstruction to the existence of a dg algebra structure on the minimal resolution of M
+-- Avramov's obstruction to the existence of a dg module structure on the minimal resolution of M
 -----------------------------------------------------------
 -----------------------------------------------------------
 
@@ -1281,18 +1281,27 @@ dgObstruction(Module,List) := Net => (M,L) -> (
     --R = Q/I
     --L = should be a list, whose elements form a regular sequence of min gens of I
     X := complex(M);
-    R := ring X;
-    I := ideal R;
-    Q := ring I; -- maybe should be ring L
+    Q := ring L_0; -- maybe should be ring L
     K := coefficientRing Q; --hopefully the field
-    Pi = resolutionMap(restrict(X,Q));
-    C = source Pi; --free res
+    Pi := resolutionMap(restrict(X,Q));
+    C := source Pi; --free res
  
     --auxiliary tools for passing down to k
     --h is just tensoring with k
     h := map(K,Q);
     S := Q/ideal L; -- this is the auxiliary CI we will use
     QtoS := map(S,Q);
+
+    --protecting lots of auxiliary vars we will use
+    u := 1;
+    v := 1;
+    w := 1;
+    i := 1;
+    j := 1;
+    r := 1;
+    s := 1;
+    sigmas := 1;
+    A := 1;
 
     --list with the betti numbers in C, to be used later
     ranks := apply(toList(min C .. max C), i -> rank C_i);
@@ -1306,17 +1315,17 @@ dgObstruction(Module,List) := Net => (M,L) -> (
 
     --N has only the nonzero homotopies (mod m)
     --this is the same data as F, but excluding zero stuff
-    N = new MutableHashTable;
+    N := new MutableHashTable;
     scan(keys F, k -> if F#k != 0 then N#k = F#k);
 
     --now let's order the tuples for ever and ever
     --these will index the entries in the pieces of the Shamash construction
-    allkeys = sort keys H;
-    tuples = unique apply(allkeys, k -> k_0);
+    allkeys := sort keys H;
+    tuples := unique apply(allkeys, k -> k_0);
     --and let's settled on an order in each homological degrees
     --break down the bases in each degree
     --into y^u \otimes F_i pieces
-    Bases = new MutableHashTable;
+    Bases := new MutableHashTable;
     scan(min C .. max C, i -> Bases#i = select(tuples, t -> 2*sum(t)<=i));
     scan(min C .. max C, i -> Bases#i = apply(Bases#i, t -> {t, i-2*sum(t)}));
     --we've stored in Bases#i pairs of (tuple t, j) so that
@@ -1328,16 +1337,15 @@ dgObstruction(Module,List) := Net => (M,L) -> (
     --need to do max C + 1 separately to avoid {0 ... 0} \otimes F^{pdim + 1} = 0
 
     --we can use this to compute the Shamash ranks
-    ranks = apply(toList(min C .. max C), i -> rank(C_i));
-    --ranks = ranks of the min free res in each degree
     --ShamashRank = list of the ranks of the pieces in the Shamash construction
-    ShamashRank = apply(toList(min C .. max C), i -> (
-	    w := apply(Bases#i, o -> o_1); --this is the collection of F_i that appear, with multiplicity
+    ShamashRank := apply(toList(min C .. max C), i -> (
+	    w = apply(Bases#i, o -> o_1); --this is the collection of F_i that appear, with multiplicity
 	    --the total rank is
 	    sum apply(w, j -> ranks_j)
 	    )
 	);
-
+    
+    
     --now we make the Shamash differential
     --Sham is a hashtable
     --key d has a matrix, giving us the Shamash differential from degree d+1 to degree d
@@ -1394,7 +1402,6 @@ dgObstruction(Module,List) := Net => (M,L) -> (
     BottomDiff := new MutableHashTable;
     scan(min C .. max C, i -> BottomDiff#i = Bottom#i | Sham#i);
 
-
     --span of the top + the boundaries
     T := new MutableHashTable;
     --in position i
@@ -1409,7 +1416,7 @@ dgObstruction(Module,List) := Net => (M,L) -> (
 	    )
 	);
 
-    netList({{"Homological degree", "Obstruction"}} | apply(toList(min C .. max C), i -> rank Sham#i + ranks_i - rank T#i - rank Bottom#i))
+    netList({{"Homological degree", "Obstruction"}} | apply(toList(min C .. max C), i -> {i,rank Sham#i + ranks_i - rank T#i - rank Bottom#i}))
 
     )
 
