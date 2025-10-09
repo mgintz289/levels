@@ -1,9 +1,9 @@
 newPackage(
     "ThickSubcategories",
-    Version => "1.1", 
-    Date => "May 17, 2024",
+    Version => "1.2", 
+    Date => "October 9, 2025",
     Authors => {
-        {Name => "Eloisa Grifo", Email => "eloisa.grifo@unl.edu", HomePage => "https://eloisagrifo.github.io"},
+        {Name => "Eloisa Grifo", Email => "grifo@unl.edu", HomePage => "https://eloisagrifo.github.io"},
         {Name => "Janina C. Letz", Email => "jletz@math.uni-bielefeld.de", HomePage => "http://www.math.uni-bielefeld.de/~jletz"},
         {Name => "Josh Pollitz", Email => "jhpollit@syr.edu", HomePage => "https://www.joshpollitz.com"}
     },
@@ -41,7 +41,8 @@ export {
     "restrict",
     "exts",
     "supportMatrices",
-    "quickMinors"
+    "quickMinors",
+    "dgObstruction"
 }
 
 needsPackage "CompleteIntersectionResolutions"
@@ -1256,6 +1257,167 @@ nonProxySmall(Ring) := Module => R -> (
     )
 
 
+
+
+
+-----------------------------------------------------------
+-----------------------------------------------------------
+-- Avramov's obstruction to the existence of a dg algebra structure on the minimal resolution of M
+-----------------------------------------------------------
+-----------------------------------------------------------
+
+--auxiliary tools:
+--will need to make matrices from blocks
+--receives a list of lists of blocks (as one inputs the data in a matrix, but the entries are matrices themselves
+--makes the matrix with these blocks
+matrixFromBlocks = method();
+matrixFromBlocks(List) := Matrix => Blocks -> fold((a,b) -> a || b, apply(Blocks, w -> fold((a,b) -> a | b, w)));
+
+
+
+dgObstruction = method()
+dgObstruction(Module,List) := Net => (M,L) -> (
+    --M is an R-module
+    --R = Q/I
+    --L = should be a list, whose elements form a regular sequence of min gens of I
+    X := complex(M);
+    R := ring X;
+    I := ideal R;
+    Q := ring I; -- maybe should be ring L
+    K := coefficientRing Q; --hopefully the field
+    Pi = resolutionMap(restrict(X,Q));
+    C = source Pi; --free res
+ 
+    --auxiliary tools for passing down to k
+    --h is just tensoring with k
+    h := map(K,Q);
+    S := Q/ideal L; -- this is the auxiliary CI we will use
+    QtoS := map(S,Q);
+
+    --list with the betti numbers in C, to be used later
+    ranks := apply(toList(min C .. max C), i -> rank C_i);
+
+    --H is a hashtable with the original higher homotopies
+    H := higherHomotopies(L,Pi,ceiling((length C + 1)/2));
+
+    --F is basically H except over the field
+    F := new MutableHashTable;
+    scan(keys H, k -> F#k = h(H#k));
+
+    --N has only the nonzero homotopies (mod m)
+    --this is the same data as F, but excluding zero stuff
+    N = new MutableHashTable;
+    scan(keys F, k -> if F#k != 0 then N#k = F#k);
+
+    --now let's order the tuples for ever and ever
+    --these will index the entries in the pieces of the Shamash construction
+    allkeys = sort keys H;
+    tuples = unique apply(allkeys, k -> k_0);
+    --and let's settled on an order in each homological degrees
+    --break down the bases in each degree
+    --into y^u \otimes F_i pieces
+    Bases = new MutableHashTable;
+    scan(min C .. max C, i -> Bases#i = select(tuples, t -> 2*sum(t)<=i));
+    scan(min C .. max C, i -> Bases#i = apply(Bases#i, t -> {t, i-2*sum(t)}));
+    --we've stored in Bases#i pairs of (tuple t, j) so that
+    --Shamash_i (to be defined) will have a piece that is y^t \otimes F_j
+    --so j + 2|t| = i
+    --note: Bases have been ordered so that y^0 \otimes F_j always comes first
+    Bases#(max C + 1) = select(tuples, t -> 2*sum(t) <= (max C + 1) and sum(t) > 0);
+    Bases#(max C + 1) = apply(Bases#(max C + 1), u -> {u, max C + 1 - 2*sum(u)});
+    --need to do max C + 1 separately to avoid {0 ... 0} \otimes F^{pdim + 1} = 0
+
+    --we can use this to compute the Shamash ranks
+    ranks = apply(toList(min C .. max C), i -> rank(C_i));
+    --ranks = ranks of the min free res in each degree
+    --ShamashRank = list of the ranks of the pieces in the Shamash construction
+    ShamashRank = apply(toList(min C .. max C), i -> (
+	    w := apply(Bases#i, o -> o_1); --this is the collection of F_i that appear, with multiplicity
+	    --the total rank is
+	    sum apply(w, j -> ranks_j)
+	    )
+	);
+
+    --now we make the Shamash differential
+    --Sham is a hashtable
+    --key d has a matrix, giving us the Shamash differential from degree d+1 to degree d
+    Sham := new MutableHashTable;
+    scan(min C .. max C, d -> (
+	    Sham#d = matrixFromBlocks table(Bases#d,Bases#(d+1), (a,b) -> (
+		    v = a_0; -- target
+		    j = a_1; --target
+		    u = b_0; --source
+		    i = b_1; --source
+		    if F#?{u-v,i} then F#{u-v,i} else map(K^(ranks_j), K^(ranks_i),0)
+		    )
+		)
+	    )
+	);
+
+
+    --Bottom is a Hashtable that in key d
+    --will store a matrix whose columns span the pieces of S.1 \otimes \sigma_w(F) \otimes k
+    --in that degree d
+    --need to compute S.1 \otimes \sigma_w(F) \otimes k summed over all w
+    Bottom := new MutableHashTable;
+    --for now just columns of zeroes of the appropriate size
+    --so we can keep adding stuff to those matrices over and over as we create the full matrices
+    scan(min C .. max C, i -> (
+	    r = ShamashRank_i;
+	    Bottom#i = map(K^r,K^1,0)
+	    ));
+    --now we add nonzero stuff
+    scan(min C .. max C, i -> (
+	    --if \sigma_w(F) lands in y^0 \otimes F_i
+	    --that means it starts at y^w \otimes F_j
+	    --and that i = j + 2|w| - 1
+	    --need to collect all those:
+	    r = ShamashRank_i;
+	    sigmas = select(keys N, k -> (
+		    w = k_0;
+		    j = k_1;
+		    i == j + 1 and sum(w) == 1
+		    --is there in fact y^w \otimes F_j in homdegree i+1?
+		    --that would mean j+2|w|-1 <= i+1
+		    --so yeah,
+		    )
+		);
+	    --each one of these deserves its own column block
+	    --with zeroes everywhere else (in the rest of the column)
+	    sigmas = apply(sigmas, s -> F#s || map(K^(r - rank target F#s), K^(rank source F#s),0));
+	    scan(sigmas, s -> Bottom#i = Bottom#i | s)
+	    )
+	);
+
+
+    --span of the bottom + the boundaries
+    BottomDiff := new MutableHashTable;
+    scan(min C .. max C, i -> BottomDiff#i = Bottom#i | Sham#i);
+
+
+    --span of the top + the boundaries
+    T := new MutableHashTable;
+    --in position i
+    --add image of the Shamash differential with
+    --y^0 \otimes F_i
+    scan(min C .. max C, i -> (
+	    r = ranks_i;
+	    s = sum(apply(Bases#i, t -> ranks_(t_1))) - ranks_i;--add up the ranks of all the F here
+	    --except I don't want to count y^0 \otimes F_i
+	    A = id_(K^r) || map(K^s,K^r,0);
+	    T#i = Sham#i | A
+	    )
+	);
+
+    netList({{"Homological degree", "Obstruction"}} | apply(toList(min C .. max C), i -> rank Sham#i + ranks_i - rank T#i - rank Bottom#i))
+
+    )
+
+    
+
+--    netList({{"Homological degree", "Top rank",
+--		"Bottom rank", "Obstruction"}} | apply(toList(min C .. max C), i ->
+--	{i,rank Sham#i + ranks_i - rank T#i, rank Bottom#i, rank Sham#i + ranks_i - rank T#i - rank Bottom#i}))
 
 
 
