@@ -1,11 +1,12 @@
 newPackage(
     "ThickSubcategories",
-    Version => "1.2", 
-    Date => "October 9, 2025",
+    Version => "1.2.1", 
+    Date => "December 18, 2025",
     Authors => {
         {Name => "Eloisa Grifo", Email => "grifo@unl.edu", HomePage => "https://eloisagrifo.github.io"},
         {Name => "Janina C. Letz", Email => "jletz@math.uni-bielefeld.de", HomePage => "http://www.math.uni-bielefeld.de/~jletz"},
-        {Name => "Josh Pollitz", Email => "jhpollit@syr.edu", HomePage => "https://www.joshpollitz.com"}
+        {Name => "Josh Pollitz", Email => "jhpollit@syr.edu", HomePage => "https://www.joshpollitz.com"},
+        {Name => "Michael Gintz", Email => "mgintz2@uic.edu", HomePage => "https://homepages.math.uic.edu/~mgintz2/"}
     },
     Headline => "Computing levels of complexes and support varieties of complexes",
     DebuggingMode => true
@@ -37,6 +38,7 @@ export {
     "higherHomotopies",
     "rightApproximation",
     "leftApproximation",
+    "homogeneousMonomialCSV",
 --    "findgs",
     "restrict",
     "exts",
@@ -1189,6 +1191,93 @@ extKoszul(Complex, Complex, List) := Module => opts -> (M, N, f) -> (
     
 )
 
+--efficiently compute the CSV of a homogeneous monomial ideal
+homogeneousMonomialCSV = method();
+homogeneousMonomialCSV List := (f) -> (
+    --print f;
+    --return 1;
+    Q := ring f_0;
+    --print Q;
+    --print "h";
+    n := numgens Q;
+    --local a_1;
+    --print f;
+    if (not isHomogeneous ideal f) then error "expected a homogeneous monomial ideal";
+    if (n < 2) then error "expected a polynomial ring with more than one variable";
+    local a;
+    a = symbol a;
+    A := new PolynomialRing;
+    A = (coefficientRing(Q))[a_1..a_n];
+    --myLcm, from ChainComplexExtras, computes the lcm of a list of monomials
+    myLcm := method();
+    myLcm(List) := (ringList)->(
+    myList := apply(ringList, i -> ideal(i));
+    myList = append(myList,ideal(1_Q));
+    (intersect myList)_0
+    );
+    myAnswerStore := ideal (1_A);
+    myDegree := (degree f_0)#0;
+    for q from 0 to myDegree-1 do (
+        entryList := new MutableHashTable;
+        for i from -2*n to n do (
+            entryList#i = {};
+        );
+        for S in subsets(n) do (
+            myS := set S + set apply(S,i->i+1);
+            if (isMember(n,myS)) then (
+                myS = myS - set {n};
+                myS = myS + set {0};
+            );
+            myS = sort toList(myS);
+            if (((degree myLcm apply(S,i->f_i))_0)%myDegree == q) then ( --checking LCM degrees mod myDegree separately
+                myShift := 0;
+                if (#S==0) then (
+                    myShift = 0;
+                ) else (
+                    myShift = #S-2*((first degree (myLcm(f_S)))//(first degree f_0));
+                );
+                entryList#myShift=append(entryList#myShift,S);
+            );
+        );
+        entryList = hashTable pairs entryList;
+        differentialMaps := new MutableHashTable;
+        myComplex := new List;
+        for e from (-2*n+1) to n do (
+            sourceSubsets := entryList#e;
+            targetSubsets := entryList#(e-1);
+            sourceList := apply(sourceSubsets, i -> myLcm(f_i));
+            targetList := apply(targetSubsets, i -> myLcm(f_i));
+            myFn := (i,j) -> (
+                if (((#(targetSubsets_i))-(#(sourceSubsets_j)))==1 or ((#(targetSubsets_i))-(#(sourceSubsets_j)))==-1) then (
+                    firstSubsetCheck := (set targetSubsets_i - set sourceSubsets_j);
+                    secondSubsetCheck := (set sourceSubsets_j - set targetSubsets_i);
+                    if ((#firstSubsetCheck == 0) and (#secondSubsetCheck == 1)) then (
+                        if (sourceList_j == targetList_i) then (
+                            ((-1)^(position(sourceSubsets_j, k -> k == (toList(secondSubsetCheck))_0)))_A
+                        ) else 0_A
+                    ) else if ((#secondSubsetCheck == 0) and (#firstSubsetCheck == 1)) then (
+                        aIndex := ((toList(firstSubsetCheck))_0)+1;
+                        myPosition := position(targetSubsets_i, k -> k == (toList(firstSubsetCheck))_0);
+                        if (targetList_i == sourceList_j * f_(aIndex-1)) then (
+                            (-1)^(myPosition)*a_aIndex
+                        ) else 0_A
+                    ) else 0_A
+                ) else 0_A);
+            retVal := map(A^(#targetSubsets), A^(#sourceSubsets), myFn);
+            differentialMaps#e = retVal;
+        );
+        myComplex = complex hashTable pairs differentialMaps;
+        myPrune := prune HH myComplex;
+        myAnswer := ideal (1_A);
+        for i from -2*n to n do (
+            myAnswer = myAnswer * (ann (myPrune_i));
+        );
+        if q<myDegree-1 then myAnswerStore = radical (myAnswer * myAnswerStore) else (
+            return radical (myAnswer * myAnswerStore);
+        );
+    );
+);
+
 
 
 
@@ -2203,6 +2292,24 @@ doc ///
             TODO
 ///
 
+doc ///
+    Key
+        homogeneousMonomialCSV
+        (List)
+    Headline
+        computes the support variety V_R(R) where Q = ring f is a polynomial ring in n variables with coefficient ring k and R = Q/(ideal f)
+    Usage
+        homogeneousMonomialCSV(f)
+    Inputs
+        f:List
+    Outputs
+        :Ideal
+            over $k[a_1, \ldots, a_n]$
+    Description
+        Text
+            TODO
+///
+
 -----------------------------------------------------------
 -----------------------------------------------------------
 -- Tests
@@ -2319,6 +2426,20 @@ TEST ///
     assert(not isCoghost(G0,g1,HomogeneousMaps => true))
     assert(not isCoghost(G1,g0,HomogeneousMaps => true))
     assert(isCoghost(G1,g1,HomogeneousMaps => true))
+///
+
+TEST ///
+    needsPackage "Complexes"
+    n=6;
+    Q=QQ[x_1..x_n];
+    f = new List;
+    for i from 1 to n-1 do (
+            f=append(f,x_i*x_(i+1));
+    );
+    f=append(f,x_1*x_n);
+    result = homogeneousMonomialCSV(f);
+    A = ring result;
+    assert (result == ideal (a_1*a_3*a_5+a_2*a_4*a_6));
 ///
 
 end
