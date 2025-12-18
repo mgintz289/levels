@@ -1199,11 +1199,11 @@ homogeneousMonomialCSV List := (f) -> (
     Q := ring f_0;
     --print Q;
     --print "h";
-    n := numgens Q;
+    n := #f;
     --local a_1;
     --print f;
     if (not isHomogeneous ideal f) then error "expected a homogeneous monomial ideal";
-    if (n < 2) then error "expected a polynomial ring with more than one variable";
+    if (numgens Q < 2) then error "expected a polynomial ring with more than one variable";
     local a;
     a = symbol a;
     A := new PolynomialRing;
