@@ -1194,14 +1194,8 @@ extKoszul(Complex, Complex, List) := Module => opts -> (M, N, f) -> (
 --efficiently compute the CSV of a homogeneous monomial ideal
 homogeneousMonomialCSV = method();
 homogeneousMonomialCSV List := (f) -> (
-    --print f;
-    --return 1;
-    Q := ring f_0;
-    --print Q;
-    --print "h";
     n := #f;
-    --local a_1;
-    --print f;
+    Q := ring f_0;
     if (not isHomogeneous ideal f) then error "expected a homogeneous monomial ideal";
     if (numgens Q < 2) then error "expected a polynomial ring with more than one variable";
     local a;
@@ -1277,9 +1271,6 @@ homogeneousMonomialCSV List := (f) -> (
         );
     );
 );
-
-
-
 
 ---------------------------------------------------------------
 -- under construction
