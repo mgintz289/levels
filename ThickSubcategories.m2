@@ -38,7 +38,7 @@ export {
     "higherHomotopies",
     "rightApproximation",
     "leftApproximation",
-    "homogeneousMonomialCSV",
+    "equigeneratedMonomialCSV",
 --    "findgs",
     "restrict",
     "exts",
@@ -1192,8 +1192,8 @@ extKoszul(Complex, Complex, List) := Module => opts -> (M, N, f) -> (
 )
 
 --efficiently compute the CSV of a homogeneous monomial ideal
-homogeneousMonomialCSV = method();
-homogeneousMonomialCSV List := (f) -> (
+equigeneratedMonomialCSV = method();
+equigeneratedMonomialCSV List := (f) -> (
     n := #f;
     Q := ring f_0;
     if (not isHomogeneous ideal f) then error "expected a homogeneous monomial ideal";
@@ -2285,12 +2285,12 @@ doc ///
 
 doc ///
     Key
-        homogeneousMonomialCSV
+        equigeneratedMonomialCSV
         (List)
     Headline
         computes the support variety V_R(R) where Q = ring f is a polynomial ring in n variables with coefficient ring k and R = Q/(ideal f)
     Usage
-        homogeneousMonomialCSV(f)
+        equigeneratedMonomialCSV(f)
     Inputs
         f:List
     Outputs
@@ -2428,7 +2428,7 @@ TEST ///
             f=append(f,x_i*x_(i+1));
     );
     f=append(f,x_1*x_n);
-    result = homogeneousMonomialCSV(f);
+    result = equigeneratedMonomialCSV(f);
     A = ring result;
     assert (result == ideal (a_1*a_3*a_5+a_2*a_4*a_6));
 ///
