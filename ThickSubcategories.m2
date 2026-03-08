@@ -1196,7 +1196,7 @@ equigeneratedMonomialCSV = method();
 equigeneratedMonomialCSV List := (f) -> (
     n := #f;
     Q := ring f_0;
-    if (not isHomogeneous ideal f) then error "expected a homogeneous monomial ideal";
+    if (not (#unique apply(flatten entries gens ideal f, d -> degree d) == 1)) then error "expected an equigenerated monomial ideal";
     if (numgens Q < 2) then error "expected a polynomial ring with more than one variable";
     local a;
     a = symbol a;
