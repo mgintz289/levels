@@ -122,7 +122,7 @@ for graphCount from 0 to (#myGraphs-1) do (
     myVector = image (QQ ** matrix toList(n:{1}));
     myPreimage = gens preimage(myMatrix,myVector);
     myPreimageV = myPreimage | 0-myPreimage;
-    C = coneFromVData(myPreimageV); --linear combinations with shared implied degree at each vertex (so that if the linear combination corresponds to an ideal it is homogeneous)
+    C = coneFromVData(myPreimageV); --linear combinations with shared implied degree at each vertex (so that if the linear combination corresponds to an ideal it is equigenerated)
     C = intersect(C,coneFromVData(id_(QQ^(numRows myPreimageV)))); --imposing positivity conditions
     R = rays C;
     RHelpful = entries transpose R;
