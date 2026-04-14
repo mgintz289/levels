@@ -187,7 +187,7 @@ for graphCount from 0 to (#myGraphs-1) do (
                     break;
                 );
             );
-            if bigloss == 0 and (numgens ideal f == #f) then ( --also checking for minimality
+            if bigloss == 0 and (numColumns mingens ideal f == #f) then ( --also checking for minimality
                 myIdeals = append(myIdeals,f);
             );
         );
