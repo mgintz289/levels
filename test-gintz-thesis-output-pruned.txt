@@ -1,3 +1,33 @@
+Macaulay2, version 1.25.05
+Type "help" to see useful commands
+ -- warning: symbol "GradedModuleMap" in OldChainComplexes.Dictionary is shadowed by a symbol in Complexes.Dictionary
+ --   use the synonym OldChainComplexes$GradedModuleMap
+ -- warning: symbol "GradedModule" in OldChainComplexes.Dictionary is shadowed by a symbol in Complexes.Dictionary
+ --   use the synonym OldChainComplexes$GradedModule
+ -- warning: symbol "res" in OldChainComplexes.Dictionary is shadowed by a symbol in Complexes.Dictionary
+ --   use one of the synonyms OldChainComplexes$res, OldChainComplexes$resolution
+ -- warning: symbol "resolution" in OldChainComplexes.Dictionary is shadowed by a symbol in Complexes.Dictionary
+ --   use one of the synonyms OldChainComplexes$res, OldChainComplexes$resolution
+ -- warning: symbol "areIsomorphic" in NautyGraphs.Dictionary is shadowed by a symbol in Posets.Dictionary
+ --   use the synonym NautyGraphs$areIsomorphic
+ -- warning: symbol "res" in Complexes.Dictionary is shadowed by a symbol in OldChainComplexes.Dictionary
+ --   use one of the synonyms Complexes$freeResolution, Complexes$res, Complexes$resolution, freeResolution
+ -- warning: symbol "GradedModuleMap" in Complexes.Dictionary is shadowed by a symbol in OldChainComplexes.Dictionary
+ --   use one of the synonyms Complexes$ComplexMap, Complexes$GradedModuleMap, ComplexMap
+ -- warning: symbol "resolution" in Complexes.Dictionary is shadowed by a symbol in OldChainComplexes.Dictionary
+ --   use one of the synonyms Complexes$freeResolution, Complexes$res, Complexes$resolution, freeResolution
+ -- warning: symbol "GradedModule" in Complexes.Dictionary is shadowed by a symbol in OldChainComplexes.Dictionary
+ --   use one of the synonyms Complex, Complexes$Complex, Complexes$GradedModule
+ -- warning: symbol "isPure" in Polyhedra.Dictionary is shadowed by a symbol in BoijSoederberg.Dictionary
+ --   use the synonym Polyhedra$isPure
+ -- warning: symbol "isPure" in BoijSoederberg.Dictionary is shadowed by a symbol in Polyhedra.Dictionary
+ --   use the synonym BoijSoederberg$isPure
+ -- warning: symbol "Attempts" in ThickSubcategoriesFork#"private dictionary" is shadowed by a symbol in Depth.Dictionary
+ --   use the synonym ThickSubcategoriesFork$Attempts
+ -- warning: symbol "Attempts" in ThickSubcategoriesFork.Dictionary is shadowed by a symbol in Depth.Dictionary
+ --   use the synonym ThickSubcategoriesFork$Attempts
+ -- warning: symbol "isPerfect" in Graphs.Dictionary is shadowed by a symbol in ThickSubcategoriesFork.Dictionary
+ --   use the synonym Graphs$isPerfect
 We first calculate CSVs of edge ideals of (4n+2)-cycles.
 
 CSV of edge ideal of 6-cycle:
@@ -137,9 +167,8 @@ HashTable{0 => {3, 5}   }
           4 => {1, 2}
           5 => {3, 0, 1}
 
-We need to consider 144 ideals.
+We need to consider 136 ideals.
 CSV of this ideal: ideal()
-CSV of this ideal: ideal(a_1*a_3+a_3*a_4)
 
 Graph 12:
 HashTable{0 => {3, 5}   }
@@ -152,6 +181,7 @@ HashTable{0 => {3, 5}   }
 We need to consider 96 ideals.
 CSV of this ideal: ideal(a_3*a_4)
 CSV of this ideal: ideal()
+CSV of this ideal: ideal()
 
 Graph 13:
 HashTable{0 => {3, 5}      }
@@ -161,9 +191,8 @@ HashTable{0 => {3, 5}      }
           4 => {1, 2, 5}
           5 => {3, 0, 4, 1}
 
-We need to consider 216 ideals.
+We need to consider 204 ideals.
 CSV of this ideal: ideal()
-CSV of this ideal: ideal(a_1*a_3+a_3*a_4)
 
 Graph 14:
 HashTable{0 => {3, 4, 5}   }
@@ -173,7 +202,7 @@ HashTable{0 => {3, 4, 5}   }
           4 => {3, 0}
           5 => {3, 0, 1, 2}
 
-We need to consider 12 ideals.
+We need to consider 8 ideals.
 CSV of this ideal: ideal()
 
 Graph 15:
@@ -195,7 +224,7 @@ HashTable{0 => {3, 4, 5}   }
           4 => {0, 1, 2, 5}
           5 => {0, 4, 1, 2}
 
-We need to consider 12 ideals.
+We need to consider 8 ideals.
 CSV of this ideal: ideal()
 
 Graph 17:
@@ -270,7 +299,7 @@ HashTable{0 => {3, 4, 5}}
           4 => {0, 2, 5}
           5 => {3, 0, 4}
 
-We need to consider 672 ideals.
+We need to consider 664 ideals.
 CSV of this ideal: ideal()
 CSV of this ideal: ideal(a_2*a_3)
 
@@ -305,8 +334,7 @@ HashTable{0 => {3, 4, 5}   }
           4 => {0, 1, 2, 5}
           5 => {0, 1, 4, 2}
 
-We need to consider 12 ideals.
-CSV of this ideal: ideal()
+We need to consider 0 ideals.
 
 Graph 27:
 HashTable{0 => {3, 4, 5}   }
@@ -346,7 +374,7 @@ HashTable{0 => {2, 4, 5}}
           4 => {2, 0}
           5 => {2, 0, 1}
 
-We need to consider 976 ideals.
+We need to consider 968 ideals.
 CSV of this ideal: ideal()
 CSV of this ideal: ideal(a_4*a_5)
 
@@ -358,7 +386,7 @@ HashTable{0 => {2, 4, 5}   }
           4 => {2, 0}
           5 => {2, 0, 3, 1}
 
-We need to consider 216 ideals.
+We need to consider 136 ideals.
 CSV of this ideal: ideal()
 
 Graph 32:
@@ -369,7 +397,7 @@ HashTable{0 => {2, 4, 5}   }
           4 => {2, 0, 1, 5}
           5 => {2, 0, 1, 4}
 
-We need to consider 216 ideals.
+We need to consider 136 ideals.
 CSV of this ideal: ideal()
 
 Graph 33:
@@ -390,8 +418,7 @@ HashTable{0 => {2, 4, 5}   }
           4 => {2, 0, 3, 1}
           5 => {2, 0, 3, 1}
 
-We need to consider 1 ideals.
-CSV of this ideal: ideal()
+We need to consider 0 ideals.
 
 Graph 35:
 HashTable{0 => {2, 3, 5}}
@@ -401,7 +428,7 @@ HashTable{0 => {2, 3, 5}}
           4 => {2, 1}
           5 => {0, 3, 1}
 
-We need to consider 2688 ideals.
+We need to consider 2656 ideals.
 CSV of this ideal: ideal()
 
 Graph 36:
@@ -464,7 +491,7 @@ HashTable{0 => {2, 3, 4, 5}}
           5 => {2, 0, 1, 3}
 
 We need to consider 0 ideals.
-We found 7 CSVs, possibly including the full CSV:
+We found 6 CSVs, possibly including the full CSV:
 
 ideal ()
 
@@ -473,9 +500,6 @@ ideal (a a , a a )
 
 ideal(a a )
        3 4
-
-ideal(a a  + a a )
-       1 3    3 4
 
 ideal(a a a  + a a a )
        1 2 3    4 5 6
